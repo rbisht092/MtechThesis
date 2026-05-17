@@ -17,6 +17,30 @@
 \usepackage{eufrak}
 \usepackage{url}
 
+\makeatletter
+% The legacy thesis class writes fake "Chapter/Figure/Table" header rows
+% as part entries. Modern LaTeX renders their page slot poorly, so keep the
+% actual entries and suppress only those generated header rows.
+\let\thesis@oldl@part\l@part
+\renewcommand*{\l@part}[2]{%
+  \def\thesis@tocentry{#1}%
+  \def\thesis@chapterhead{\chapternameToC}%
+  \def\thesis@figurehead{\figurenameToC}%
+  \def\thesis@tablehead{\tablenameToC}%
+  \ifx\thesis@tocentry\thesis@chapterhead\relax
+  \else\ifx\thesis@tocentry\thesis@figurehead\relax
+  \else\ifx\thesis@tocentry\thesis@tablehead\relax
+  \else
+    \thesis@oldl@part{#1}{#2}%
+  \fi\fi\fi
+}
+\renewcommand*{\l@chapter}{\@dottedtocline{0}{0em}{2.5em}}
+\renewcommand*{\l@section}{\@dottedtocline{1}{2.5em}{3.2em}}
+\renewcommand*{\l@subsection}{\@dottedtocline{2}{5.7em}{4.1em}}
+\renewcommand*{\l@figure}{\@dottedtocline{1}{0em}{3.8em}}
+\renewcommand*{\l@table}{\@dottedtocline{1}{0em}{3.8em}}
+\makeatother
+
 \newcommand{\safeincludegraphics}[2][]{%
   \IfFileExists{#2}{%
     \includegraphics[#1]{#2}%
