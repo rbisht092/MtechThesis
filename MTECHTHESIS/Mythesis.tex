@@ -39,6 +39,11 @@
 \renewcommand*{\l@subsection}{\@dottedtocline{2}{5.7em}{4.1em}}
 \renewcommand*{\l@figure}{\@dottedtocline{1}{0em}{3.8em}}
 \renewcommand*{\l@table}{\@dottedtocline{1}{0em}{3.8em}}
+% The template's symbol/abbreviation prologue code has broken conditionals
+% and calls an undefined \listofabbreviations. Disable those unused pages.
+\renewcommand*{\th@symbolspage}{}
+\renewcommand*{\th@LoApage}{}
+\providecommand*{\listofabbreviations}{}
 \makeatother
 
 \newcommand{\safeincludegraphics}[2][]{%
@@ -79,10 +84,10 @@ Low back pain (LBP) affects a large part of the population, with nearly 60--80\%
 \noindent\textbf{Keywords:} Lumbar multifidus muscle (LMM), ultrasound imaging (USG), deep learning (DL), ROI extraction, Heckmatt grading, low back pain (LBP), medical imaging, artificial intelligence (AI).
 }
 
-\LoSisShort
 \LoFisShort
 \LoTisShort
-\LoAisShort
+\emptyLoS
+\emptyLoA
 
 \begin{document}
 
