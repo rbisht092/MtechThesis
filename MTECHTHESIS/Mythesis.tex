@@ -1,117 +1,76 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%  see documentation for information about  %%%%%%%%%%
-%%%%%%%%%%%  the options (11pt, defaultstyle, etc.)   %%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%  http://www.Colorado.EDU/ITS/docs/latex/ThesisClass/  %%%%%
+%%%%%%%%%%%%%%     M.Tech Thesis Report     %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%   \documentclass[defaultstyle]{thesis}
-%   \documentclass[typewriterstyle]{thesis}
-%   \documentclass[modernstyle]{thesis}
-    \documentclass[modernstyle,12pt]{thesis}
+\documentclass[modernstyle,12pt]{thesis}
 
-%   \documentclass[modernstyle,11pt]{thesis}
-%   \documentclass[defaultstyle,12pt]{thesis}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%    load any packages which are needed    %%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\usepackage{latexsym}       % to get LASY symbols
-\usepackage{epsfig}     % to insert PostScript figures
-\usepackage{rotating}       % for sideways tables/figures
+\usepackage{latexsym}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{rotating}
 \usepackage{eufrak}
-%\usepackage{listofsymbols}
+\usepackage{url}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%       all the preamble material:       %%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\safeincludegraphics}[2][]{%
+  \IfFileExists{#2}{%
+    \includegraphics[#1]{#2}%
+  }{%
+    \fbox{\parbox{0.85\linewidth}{\centering Missing figure: \texttt{#2}}}%
+  }%
+}
 
-\title{\uppercase{Your title here}}
+\title{\uppercase{Multifidus Muscle Classification from Ultrasound Imaging Using Deep Learning}}
 
-\author{\uppercase{Your name}}{\uppercase{surname}}
+\author{\uppercase{Rahul}}{\uppercase{Bisht}}
 
-%\otherdegrees{B.A., North Dakota State University, 1994 \\
-%         M.S., University of Reno, 1997}
+\degree{{\emph{\uppercase{Master of Technology}}}}
+    {M.Tech., Computer Science and Engineering}
 
-\degree{{\emph{\uppercase{Master of Technology}}}}        %  #1 {long descr.}
-    {M.Tech., Computer Science and Engineering}     %  #2 {short descr.}
+\dept{Department of}
+    {Computer Science and Engineering}
 
-\dept{Department of}            %  #1 {designation}
-    {Computer Engineering}      %  #2 {name}
+\advisor{Dr.}{\uppercase{Jayaraj PB}}
 
-\advisor{}{\uppercase{Guide Name}}           %  #1 {title}
+\reader{Dr. Jayaraj PB}
 
-\reader{Dr. M.P. Sebastian}      %  2nd person to sign thesis
-%\readerThree{Ms.~Thora Nea}        %  3rd person to sign thesis
-% \readerFour{Mr.~Alfred Remington} %  4rd person to sign thesis
-
-\acknowledgements{  \OnePageChapter % *MUST* BE ONLY ONE PAGE!
-Your acknowledgements
+\acknowledgements{  \OnePageChapter
+I would like to express my sincere gratitude to my guide, Dr. Jayaraj PB, for his guidance, encouragement, and valuable feedback throughout this project. I am also thankful to the Department of Computer Science and Engineering for providing the academic environment and support required to carry out this work. I extend my thanks to the clinical collaborators and reviewers who supported the ultrasound image review and annotation process. Finally, I thank my family and friends for their constant encouragement.
 \begin{raggedright}
-\vspace*{10mm} \hspace*{117mm} \textbf{Your name}
+\vspace*{10mm} \hspace*{117mm} \textbf{Rahul Bisht}
 \end{raggedright}
-    }
+}
 
- \ToCisShort
-% a 1-page Table of Contents ??
+\ToCisShort
 
-\abstract{  \OnePageChapter % one page only ??
+\abstract{  \OnePageChapter
+Low back pain (LBP) affects a large part of the population, with nearly 60--80\% of people experiencing it during their lifetime. The Lumbar Multifidus Muscle (LMM) is important for spinal stability, and changes such as atrophy and fatty infiltration are closely linked with chronic LBP. Although MRI and CT scans can be used to study the muscle, they are either expensive, less accessible, or involve radiation exposure. Ultrasound imaging is safer and more affordable, but manual interpretation depends strongly on the observer. This project develops a deep learning based pipeline for automated LMM assessment from B-mode ultrasound images. The system first localizes the muscle region using an ROI extraction model and then classifies the image into Heckmatt grades. Experiments were carried out with U-Net, SAM, YOLOv8, transformer-based classifiers, MedGemma, ResNet, and EfficientNet models. The final phase shifted from only improving classification accuracy to auditing label reliability and understanding model disagreement. A ViT-based audit on 606 GMC and LUMINOUS images treated H1 and H2 as normal and H3 and H4 as abnormal. The audit found 172 disagreements, including 79 high-confidence disagreements, showing that model performance is limited not only by architecture but also by domain shift and ambiguity around middle Heckmatt grades.
 
-    Abstract here. Abstract should not exceed two pages.
-    }
+\vspace{4mm}
+\noindent\textbf{Keywords:} Lumbar multifidus muscle (LMM), ultrasound imaging (USG), deep learning (DL), ROI extraction, Heckmatt grading, low back pain (LBP), medical imaging, artificial intelligence (AI).
+}
 
 \LoSisShort
-%\emptyLoS % no List of Symbols at all ??
-
-\LoFisShort % a 1-page List of Figures ??
-% \emptyLoF % no List of Figures at all ??
-
-\LoTisShort % a 1-page List of Tables ??
-% \emptyLoT % no List of Tables at all ??
+\LoFisShort
+\LoTisShort
 \LoAisShort
-%\LoA
-% \emptyLoA % no List of Abbreviations at all ??
-%\emptyLos  % no List of symbols
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%       BEGIN DOCUMENT...         %%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%  Weird footnotes??
-%%%%  default=\arabic; \roman, \Roman, \alph, \Alph, \fnsymbol
-%   \renewcommand{\thefootnote}{\fnsymbol{footnote}}
-%   \setcounter{footnote}{0}
 
 \begin{document}
 
 \input macros.tex
-\input ch3.tex
 \input ch1.tex
 \input ch2.tex
-%% all chapters can be input like this....%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%  Bibliography %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input ch3.tex
+\input ch4.tex
+\input ch5.tex
 
-\bibliographystyle{plain}   % or "siam", or "alpha", or "abbrv"
-                % see other styles in
-                % /usr/local/TeX/texmf/bibtex/bst
-
-\nocite{*}      % list all refs in database, cited or not.
-
-\bibliography{}     % bib database in "refs.bib"
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%  Appendices %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\appendix   % don't forget this line if you have appendices!
-\input appA.tex
-%% all appendices included in this manner%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%   THE END   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{unsrt}
+\nocite{*}
+\bibliography{bibname}
 
 \end{document}

@@ -1,0 +1,27 @@
+ProjectReport_M241114CS\ \(1\)/
+
+# Local backups of removed template/build clutter
+MTECHTHESIS/_backup_unnecessary_*/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.dvi
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# Editor/temporary backup files
+*.swp
+*~
+*.bak
+*.backup
+*.sav
