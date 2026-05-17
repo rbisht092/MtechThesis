@@ -1,7 +1,9 @@
 ProjectReport_M241114CS\ \(1\)/
+MTECHTHESIS_template/
 
 # Local backups of removed template/build clutter
 MTECHTHESIS/_backup_unnecessary_*/
+MTECHTHESIS/_backup_complex_template_*/
 
 # LaTeX build artifacts
 *.aux

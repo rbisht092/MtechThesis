@@ -1,0 +1,604 @@
+﻿\documentclass[12pt,a4paper]{report}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\linespread{1.25}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
+
+\renewcommand{\contentsname}{Contents}
+\renewcommand{\listfigurename}{List of Figures}
+\renewcommand{\listtablename}{List of Tables}
+\renewcommand{\bibname}{References}
+
+\newcommand{\safeincludegraphics}[2][]{%
+  \IfFileExists{#2}{%
+    \includegraphics[#1]{#2}%
+  }{%
+    \fbox{\parbox{0.85\linewidth}{\centering Missing figure: \texttt{#2}}}%
+  }%
+}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{0.5cm}
+{\Large\bfseries MULTIFIDUS MUSCLE CLASSIFICATION FROM ULTRASOUND IMAGING USING DEEP LEARNING\par}
+\vspace{1.2cm}
+{\bfseries A THESIS\par}
+\vspace{0.2cm}
+{\itshape Submitted by\par}
+\vspace{0.4cm}
+{\large\bfseries RAHUL BISHT\par}
+\vspace{0.8cm}
+{\itshape In partial fulfilment for the award of the degree of\par}
+\vspace{0.4cm}
+{\large\bfseries MASTER OF TECHNOLOGY\par}
+{\bfseries IN\par}
+{\bfseries COMPUTER SCIENCE AND ENGINEERING\par}
+\vspace{0.8cm}
+{\bfseries Under the guidance of\par}
+\vspace{0.2cm}
+{\bfseries Dr. Jayaraj PB\par}
+\vfill
+\IfFileExists{figures/nitclogo.pdf}{\includegraphics[width=0.22\textwidth]{figures/nitclogo.pdf}\par\vspace{0.4cm}}{}
+{\bfseries DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING\par}
+{\bfseries NATIONAL INSTITUTE OF TECHNOLOGY CALICUT\par}
+{\bfseries KERALA, INDIA 673601\par}
+\vspace{0.3cm}
+{\bfseries 2026\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+
+\chapter*{Certificate}
+This is to certify that the thesis entitled ``\textbf{Multifidus Muscle Classification from Ultrasound Imaging Using Deep Learning}'' submitted by \textbf{Rahul Bisht} to National Institute of Technology Calicut towards partial fulfillment of the requirements for the award of the Degree of Master of Technology in Computer Science and Engineering is a bonafide record of the work carried out under my supervision and guidance.
+
+\vspace{2cm}
+\noindent\textbf{Guide:} Dr. Jayaraj PB
+
+\chapter*{Declaration}
+I hereby declare that this submission is my own work and that, to the best of my knowledge and belief, it contains no material previously published or written by another person, nor material which has been accepted for the award of any other degree or diploma of any university or institute of higher learning, except where due acknowledgment has been made in the text.
+
+\vspace{2cm}
+\noindent\textbf{Name:} Rahul Bisht\\
+\textbf{Reg. No.:} M241114CS
+
+\chapter*{Acknowledgements}
+I would like to express my sincere gratitude to my guide, Dr. Jayaraj PB, for his guidance, encouragement, and valuable feedback throughout this project. I am also thankful to the Department of Computer Science and Engineering for providing the academic environment and support required to carry out this work. I extend my thanks to the clinical collaborators and reviewers who supported the ultrasound image review and annotation process. Finally, I thank my family and friends for their constant encouragement.
+
+\vspace{1cm}
+\begin{flushright}
+\textbf{Rahul Bisht}
+\end{flushright}
+
+\chapter*{Abstract}
+Low back pain (LBP) affects a large part of the population, with nearly 60--80\% of people experiencing it during their lifetime. The Lumbar Multifidus Muscle (LMM) is important for spinal stability, and changes such as atrophy and fatty infiltration are closely linked with chronic LBP. Although MRI and CT scans can be used to study the muscle, they are either expensive, less accessible, or involve radiation exposure. Ultrasound imaging is safer and more affordable, but manual interpretation depends strongly on the observer. This project develops a deep learning based pipeline for automated LMM assessment from B-mode ultrasound images. The system first localizes the muscle region using an ROI extraction model and then classifies the image into Heckmatt grades. Experiments were carried out with U-Net, SAM, YOLOv8, transformer-based classifiers, MedGemma, ResNet, and EfficientNet models. The final phase shifted from only improving classification accuracy to auditing label reliability and understanding model disagreement. A ViT-based audit on 606 GMC and LUMINOUS images treated H1 and H2 as normal and H3 and H4 as abnormal. The audit found 172 disagreements, including 79 high-confidence disagreements, showing that model performance is limited not only by architecture but also by domain shift and ambiguity around middle Heckmatt grades.
+
+\vspace{4mm}
+\noindent\textbf{Keywords:} Lumbar multifidus muscle (LMM), ultrasound imaging (USG), deep learning (DL), ROI extraction, Heckmatt grading, low back pain (LBP), medical imaging, artificial intelligence (AI).
+
+\tableofcontents
+\listoftables
+\listoffigures
+
+\clearpage
+\pagenumbering{arabic}
+\chapter{Introduction}
+\label{chap:introduction}
+\section{Introduction}
+\label{intro}
+Low back pain (LBP) is a major health problem worldwide. Studies report that 60\% to 80\% of individuals experience it at some point during their lifetime \cite{Freeman2010}. The Lumbar Multifidus Muscle (LMM), which belongs to the deep spinal muscle group, plays an important role in maintaining posture and stabilizing the lower back. Clinical and imaging studies have shown that chronic LBP is often associated with multifidus muscle atrophy and fatty infiltration \cite{Vohra2016}. MRI-based observations also suggest that degeneration is often prominent near the L5 vertebral level, which is highly relevant for lumbar stability \cite{Vohra2016}.
+
+CT scans provide good visualization of the LMM, but the use of ionizing radiation limits their routine use \cite{Brenner2022}. MRI is non-invasive and detailed, but it is expensive and may not be suitable for patients with metal implants, claustrophobia, or limited healthcare coverage. Ultrasound imaging offers a practical alternative because it is safe, inexpensive, portable, and suitable for repeated assessment.
+
+However, ultrasound interpretation is not straightforward. Image quality varies, speckle noise is common, and the distinction between healthy muscle and fatty infiltration can be subtle. Manual analysis also depends on the skill and consistency of the examiner. A machine learning based approach can reduce this dependency by extracting consistent image features and producing repeatable assessments. Texture analysis and pixel-level study of ultrasound images have already shown promise for measuring muscle composition \cite{Pincheira2024}. This project builds on that direction by developing an automated pipeline for LMM localization and Heckmatt grade classification.
+
+
+\section{Motivation}
+\label{motivation}
+Accurate characterization of the multifidus muscle is useful for understanding chronic back pain and for monitoring rehabilitation. MRI and CT provide high-quality images, but their cost, availability, and practical limitations reduce their usefulness for regular screening. Ultrasound is more accessible, but separating muscle tissue from intramuscular fat remains difficult, especially when image quality differs across machines and operators \cite{Sions2017}.
+
+Deep learning can help make ultrasound-based assessment more objective. A model that first identifies the LMM region and then classifies muscle quality can reduce manual effort and make the assessment more consistent. Such a system would be especially useful in clinical settings where physicians need quick and repeatable support rather than a complex research workflow.
+
+
+\section{Problem Definition}
+\label{problem}
+The problem addressed in this project is the automated grading of Lumbar Multifidus Muscle quality from B-mode ultrasound images. The main objective is to assign the image to one of the four Heckmatt grades by analysing the echo intensity and texture patterns within the muscle region.
+
+
+
+\chapter{Literature Review}
+\label{chap:literature_review}
+\label{relatedwork}
+The stabilizing role of the lumbar multifidus muscle in chronic LBP has been studied extensively by Freeman et al. \cite{Freeman2010}. Their review explains how LMM dysfunction, fatty infiltration, and atrophy are related to pain and impaired spinal control. It also highlights the value of imaging techniques such as MRI and ultrasound for measuring muscle impairment and recovery.
+
+Ardhianto \cite{DeepLearningChallenges2021} reviewed deep learning applications in muscle ultrasound imaging and discussed common difficulties such as low image quality, motion artifacts, and limited annotated data. The review grouped existing methods into segmentation and classification tasks and described architectural choices such as skip connections and improved upsampling. Although it does not focus only on LMM, the discussed methods are relevant for ultrasound-based muscle analysis.
+
+Kim et al. \cite{Kim2020} proposed a computerized method for measuring LMM thickness and intramuscular fat from ultrasound images. Their method used contrast enhancement and Fuzzy C-Means clustering to quantify fat, reducing operator dependence. The reported measurements showed close agreement with expert measurements, and the fat quantification step provided more clinical information than ordinary histogram analysis.
+
+The LUMINOUS database \cite{Belasso2020} is important for this project because it provides annotated lumbar multifidus ultrasound images at the L5 level. It includes hand-segmented binary masks, making it suitable for training and validating ROI detection or segmentation methods. Its limitation is that the subjects are young athletic adults, so the distribution differs from older or clinical LBP populations.
+
+Weber et al. \cite{Weber2021} used a CNN model to segment cervical spine muscles and estimate muscle fat infiltration from Dixon MRI scans. Even though the modality is MRI rather than ultrasound, the work shows how deep learning can reduce manual effort in muscle assessment.
+
+Rodriguez et al. \cite{Rodriguez2017} studied the effect of preprocessing on ultrasound lesion segmentation and classification. Their results showed that contrast enhancement and despeckling can strongly affect ultrasound model performance. This is relevant because the present project also observed that preprocessing choices influenced Heckmatt classification performance.
+
+Noise handling is a separate concern in ultrasound because speckle is not just ordinary camera noise. Yu and Acton \cite{YuActon2002} proposed speckle reducing anisotropic diffusion for ultrasonic and radar images, and Loizou et al. \cite{Loizou2005} compared despeckle filters for medical ultrasound images. These works are relevant here because the images used in this project vary in contrast, grain, and machine-dependent appearance. Any preprocessing step therefore has to reduce noise without washing out the texture that is needed for Heckmatt grading.
+
+The classification models used in the project also follow common deep learning practice. ResNet introduced residual connections to make deeper convolutional networks easier to optimize \cite{he2016resnet}, which is why ResNet18 was kept as a simple but useful baseline. The class distribution in this project was not balanced, so the work also connects with imbalanced learning studies. He and Garcia \cite{HeGarcia2009} discuss the general difficulty of learning from imbalanced data, while focal loss \cite{LinFocal2017} and class-balanced loss \cite{Cui2019} show different ways of reducing bias toward majority classes. Since medical image datasets are often small, augmentation is also important; Shorten and Khoshgoftaar \cite{Shorten2019} review image augmentation methods, and AutoAugment \cite{Cubuk2019} shows how augmentation policies can be learned from data.
+
+Recent ultrasound foundation models have also become relevant. USFM \cite{JIAO2024103202} was trained on more than two million ultrasound images and uses a spatial-frequency masked image modelling strategy. UltraSam \cite{meyer2024ultrasam}, an ultrasound-adapted version of SAM, was trained on a large ultrasound segmentation collection and showed improved performance over general-purpose SAM on ultrasound tasks. These works suggest that ultrasound-specific pretraining may be useful for future versions of this project.
+
+
+\chapter{Methodology}
+\label{chap:methodology}
+\label{methodology}
+The proposed system follows a two-stage pipeline. In the first stage, the LMM region is localized from the ultrasound image. In the second stage, the localized image is classified into one of the four Heckmatt grades.
+
+The ROI extraction stage was first studied using the LUMINOUS dataset, where segmentation masks were converted into bounding boxes. The ROI detector was then used to crop the muscle region from the clinical GMC dataset. Earlier experiments used U-Net and SAM for segmentation, but the final practical solution used YOLOv8 because it can directly predict a bounding box at inference time without requiring a prompt.
+
+For classification, the cropped or full ultrasound images were passed to transfer learning based models. Several backbones were tested, including EfficientNet-B0, ResNet, ViT-B16, SigLIP, and the MedGemma vision encoder. ResNet was included as a stable convolutional baseline because residual learning is well suited for training deeper networks without the same optimization problems as plain CNNs \cite{he2016resnet}. ViT was used because the texture pattern in ultrasound is not always local, and the self-attention based model can compare image regions more globally.
+
+The first classification setup was a direct four-class experiment. Each image was assigned to H1, H2, H3, or H4, and the model was trained with the usual train, validation, and test split. Because the class counts were uneven, accuracy alone was not enough. Balanced accuracy and confusion matrices were used to see whether the model was only learning the dominant classes. Weighted loss was also tested to reduce the bias caused by the larger H2 group, following the general idea of imbalanced learning \cite{HeGarcia2009,Cui2019}.
+
+Preprocessing was tested because the ultrasound images were not visually uniform. Some images had strong speckle and some had lower contrast. Gaussian blur, grayscale conversion, ImageNet normalization, and augmentation were tried in different runs. The aim was not to remove all texture, since texture is part of the Heckmatt signal, but to reduce unwanted noise and make the model less sensitive to small acquisition differences. This part of the methodology is related to ultrasound despeckling work \cite{YuActon2002,Loizou2005} and image augmentation literature \cite{Shorten2019,Cubuk2019}.
+
+After the direct four-class runs, pairwise binary classifiers were trained for all class pairs: H1 vs H2, H1 vs H3, H1 vs H4, H2 vs H3, H2 vs H4, and H3 vs H4. This was done to check which boundaries were actually separable. If a pairwise model performs well for distant grades but poorly for adjacent grades, then the problem is not only the final classifier. It also means the visual boundary between those grades is weak or inconsistent in the available data.
+
+A hierarchical method was also tested because Heckmatt grades have an order. Two directions were used. The low-to-high cascade first checked for H1, then H2, and finally separated H3 from H4. The high-to-low cascade did the reverse by first checking H4, then H3, and finally separating H2 from H1. This made it possible to see whether the model worked better when severe cases were separated first or when normal cases were separated first.
+
+The most recent audit phase used 606 labelled Heckmatt images from the GMC and LUMINOUS image sets. For the audit, H1 and H2 were mapped to the normal class, while H3 and H4 were mapped to the abnormal class. A ViT model was used to compare predicted normal/abnormal labels against these assumptions. A disagreement was counted when the model prediction did not match the assumed label, and a high-confidence disagreement was counted when the prediction confidence was at least 0.8. This was not used as a final medical decision. It was used as a practical way to find images that should be reviewed again by the doctor.
+
+The project also produced an annotation workflow for the relabeling stage. Images can be uploaded into the tool, shown to the doctor one by one, assigned a corrected Heckmatt label, and marked with a bounding box around the muscle region. At the end, the corrected labels and bounding-box data can be downloaded directly. This matters because the audit showed that some labels are likely inconsistent, and the doctor is currently correcting those cases.
+
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.4\textwidth]{figures/yolo_finetune_pipeline.png}
+\caption{YOLO fine-tuning pipeline}
+\label{fig:yolo_finetune}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.7\textwidth]{figures/datasetDistribution.png}
+\caption{Dataset Distribution by Grades}
+\label{fig:dataset_distribution}
+\end{figure}
+
+
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.9\textwidth]{figures/Architecture-of-the-YOLO-network.png}
+\caption{YOLO architecture. Source: ResearchGate}
+\label{fig:yolo_arch}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.9\textwidth]{figures/yolo_arch.png}
+\caption{Classification methodology}
+\label{fig:classification_methodology}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.7\textwidth]{figures/EfficientNet-Architecture.png}
+\caption{EfficientNet architecture}
+\label{fig:efficientnet_arch}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.9\textwidth]{figures/hierarchical-inf-pipe.png}
+\caption{Hierarchical inference architecture}
+\label{fig:hierarchical_arch}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.9\textwidth]{figures/label-audit.png}
+\caption{Binary label audit workflow}
+\label{fig:audit_arch}
+\end{figure}
+
+\section{Evaluation Metrics}
+\label{metrics}
+For segmentation and ROI localization experiments, the following metrics were used:
+
+\textbf{Intersection over Union (IoU) or Jaccard Index:}
+\[
+\text{IoU} = \frac{|A \cap B|}{|A \cup B|}
+\]
+
+\textbf{Dice Coefficient:}
+\[
+\text{Dice} = \frac{2|A \cap B|}{|A| + |B|}
+\]
+
+\textbf{Pixel Accuracy:}
+\[
+\text{Pixel Accuracy} = \frac{\text{Correctly classified pixels}}{\text{Total pixels}}
+\]
+
+For classification, the following metrics were used:
+
+\textbf{Accuracy:}
+\[
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\]
+
+\textbf{Precision:}
+\[
+\text{Precision} = \frac{TP}{TP + FP}
+\]
+
+\textbf{Recall / Sensitivity:}
+\[
+\text{Recall} = \frac{TP}{TP + FN}
+\]
+
+\textbf{Specificity:}
+\[
+\text{Specificity} = \frac{TN}{TN + FP}
+\]
+
+\textbf{F1 Score:}
+\[
+\text{F1 Score} = \frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
+\]
+
+\textbf{Balanced Accuracy:}
+\[
+\text{Balanced Accuracy} = \frac{1}{C}\sum_{i=1}^{C}\text{Recall}_{i}
+\]
+
+Balanced accuracy was especially important in this project because the Heckmatt classes were not equally represented.
+
+
+\chapter{Experiments and Results}
+\label{chap:experiments_results}
+\label{workdone}
+\section{Preliminary Classification and ROI Extraction}
+The first classification experiments were trained on raw B-mode ultrasound images. These results suggested that performance could improve if the model focused on the LMM rather than the entire ultrasound frame. This led to the ROI extraction stage.
+
+A U-Net segmentation model with a ResNet-34 encoder pretrained on ImageNet was trained on LUMINOUS images with annotated GMC images. The images were resized to 256 $\times$ 256 pixels and trained with a batch size of 8. On LUMINOUS, the model achieved IoU = 0.86, Dice = 0.92, and Pixel Accuracy = 0.98. However, when tested on GMC images, the segmentation quality dropped noticeably. The predicted masks were noisy in several cases, showing a clear domain shift between the public LUMINOUS data and the local clinical images.
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.2\textwidth]{figures/bmode.png}
+\caption{B-mode USG image}
+\label{fig:bmode}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.2\textwidth]{figures/groundtruthmask.png}
+\caption{Ground truth mask}
+\label{fig:groundtruth}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.2\textwidth]{figures/predicted_mask.png}
+\caption{Predicted mask}
+\label{fig:predmask}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.2\textwidth]{figures/roi_cut.jpg}
+\caption{ROI crop}
+\label{fig:roi}
+\end{figure}
+
+\section{ROI Extraction: Model Progression}
+\subsection{SAM}
+As an alternative to U-Net, the Segment Anything Model (SAM) was tested using bounding box prompts generated from LUMINOUS segmentation masks. SAM achieved strong performance on the test set, with IoU = 0.91, Dice = 0.95, and Pixel Accuracy = 0.99. The main limitation was that SAM needed a bounding box prompt during inference. This meant that another model would still be required to generate the prompt for unseen images. Like U-Net, SAM also struggled with the domain difference between LUMINOUS and GMC images, so it was not suitable as a standalone deployment model.
+
+\subsection{YOLO-based ROI Extraction}
+Since the final requirement was a reliable muscle crop rather than a pixel-perfect mask, YOLOv8 object detection was selected for ROI extraction. Bounding box annotations were automatically generated from the LUMINOUS masks and used to fine-tune a pretrained YOLOv8m model. The dataset was split 80/20 for training and validation. Images were converted from 16-bit to 8-bit and transformed into 3-channel inputs. The model was trained for 100 epochs with an input resolution of 640 $\times$ 640 and batch size 16.
+
+YOLOv8 reached mAP50 = 0.995, Precision = 0.999, and Recall = 1.0 on the validation set. More importantly, it predicted bounding boxes directly during inference, making it more practical for the final pipeline than SAM.
+
+\section{Binary Classification}
+Three pretrained backbone encoders were evaluated for binary classification, each followed by a three-layer fully connected head. EfficientNet-B0 and ViT-B16 both reached 90.47\% accuracy. ViT-B16 produced slightly better precision, recall, and F1-score values, with all three around 0.94. SigLIP reached 85.71\% accuracy.
+
+A short self-supervised inpainting experiment was also carried out on LUMINOUS and GMC images to reduce the gap between ImageNet-pretrained weights and ultrasound images. Because the available pretraining data was limited, the result was modest, with 81.58\% accuracy and 0.87 F1-score. This direction was not continued in the main pipeline.
+
+\section{Heckmatt Grade Classification}
+The classification task was then extended to four Heckmatt grades. The dataset contained 606 images, distributed as Grade I: 146, Grade II: 279, Grade III: 129, and Grade IV: 52. This imbalance was a major difficulty, especially for Grade IV.
+
+\subsection{Earlier Backbone Experiments}
+The first four-class experiments compared several pretrained backbones. Table~\ref{tab:heckmatt_old_results} shows the earlier results.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{Best Val Accuracy} & \textbf{Test Accuracy} \\
+\midrule
+ViT-B16 (cropped, LUMINOUS) & 64.00\% & 47.00\% \\
+MedGemma (vision encoder) & 62.00\% & 50.00\% \\
+ViT-B16 (full images) & 61.11\% & 55.00\% \\
+ResNet & 53.30\% & 51.10\% \\
+EfficientNet-B0 & 52.00\% & 50.00\% \\
+\bottomrule
+\end{tabular}}
+\caption{Earlier Heckmatt grading results across backbone architectures}
+\label{tab:heckmatt_old_results}
+\end{table}
+
+ViT-B16 trained on full images gave the best test accuracy among these initial runs. The cropped ViT-B16 run had the highest validation accuracy but dropped sharply on the test set, which indicated overfitting. MedGemma did not improve the result despite medical pretraining, suggesting that domain-specific pretraining alone was not enough when the fine-tuning dataset was small.
+
+\subsection{Direct Four-Class Classification}
+The four-class classifiers were first checked in the usual way, using the test split and confusion matrices. On the equalized dataset, the multiclass model reached 50.55\% test accuracy. A ResNet18 direct four-class model gave the strongest direct result, with 63.74\% test accuracy and 67.03\% best validation accuracy. These numbers were useful, but the confusion matrices were more informative than the single accuracy value. H4 was being identified quite reliably even though it had the fewest examples, while most errors were concentrated around H1/H2 and H2/H3.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcc}
+\toprule
+\textbf{Experiment} & \textbf{Test Accuracy} & \textbf{Test Loss} \\
+\midrule
+Equalized multiclass test (vit) & 50.55\% & 2.4477 \\
+ResNet18 direct four-class & 63.74\% & 1.6417 \\
+Augmentation run (ViT) & 60.20\% & -- \\
+ViT + gaussian blur & 57.14\% & 2.102 \\
+\bottomrule
+\end{tabular}}
+\caption{Direct multiclass classification results}
+\label{tab:direct_multiclass}
+\end{table}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+ & \textbf{Pred H1} & \textbf{Pred H2} & \textbf{Pred H3} & \textbf{Pred H4} \\
+\midrule
+\textbf{True H1} & 11 & 7 & 4 & 0 \\
+\textbf{True H2} & 13 & 17 & 11 & 1 \\
+\textbf{True H3} & 1 & 4 & 10 & 4 \\
+\textbf{True H4} & 0 & 0 & 0 & 8 \\
+\bottomrule
+\end{tabular}}
+\caption{Equalized dataset multiclass confusion matrix}
+\label{tab:equalized_cm}
+\end{table}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+ & \textbf{Pred H1} & \textbf{Pred H2} & \textbf{Pred H3} & \textbf{Pred H4} \\
+\midrule
+\textbf{True H1} & 12 & 10 & 0 & 0 \\
+\textbf{True H2} & 5 & 33 & 3 & 1 \\
+\textbf{True H3} & 1 & 8 & 6 & 4 \\
+\textbf{True H4} & 0 & 1 & 0 & 7 \\
+\bottomrule
+\end{tabular}}
+\caption{ResNet18 direct four-class confusion matrix}
+\label{tab:resnet_direct_cm}
+\end{table}
+
+\section{Hyperparameter Search}
+A 36-run hyperparameter search was carried out using a ViT classification pipeline with ImageNet normalization and Gaussian blur preprocessing. Learning rate, dropout, batch size, and the number of unfrozen final blocks were varied. Trial 32 gave the best validation accuracy of 68.10\%, but it did not carry the same advantage to the test set. Trials 15 and 19 were more stable on the test split, both reaching 61.50\% accuracy and 65.30\% balanced accuracy. Gaussian blur with a radius of 0.25 showed good results.
+
+
+
+\begin{table}[H]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Trial} & \textbf{LR} & \textbf{Dropout} & \textbf{Blocks} & \textbf{Batch} & \textbf{Test Acc.} & \textbf{Bal. Acc.} \\
+\midrule
+15 & 0.0003 & 0.2 & 2 & 8 & 61.50\% & 65.30\% \\
+19 & 0.0003 & 0.3 & 2 & 8 & 61.50\% & 65.30\% \\
+29 & 0.0010 & 0.3 & 1 & 8 & 60.40\% & 65.10\% \\
+25 & 0.0010 & 0.2 & 1 & 8 & 60.40\% & 63.10\% \\
+32 & 0.0010 & 0.3 & 2 & 16 & 54.90\% & 55.90\% \\
+\bottomrule
+\end{tabular}}
+\caption{Selected hyperparameter search results}
+\label{tab:hparam_search}
+\end{table}
+
+\section{Pairwise Binary Experiments}
+Pairwise classifiers were trained to check whether the difficulty came from the model setup or from the grade boundaries themselves. The ViT-B/16 pairwise runs made the pattern clearer. H1 vs H4 and H2 vs H4 were the easiest comparisons, both reaching 93.75\% test accuracy. The weak point was H2 vs H3, which reached only 60.53\%. This supports the visual observation that the middle Heckmatt grades do not always have a clean separation in the available images.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Pair} & \textbf{Accuracy} & \textbf{Bal. Acc.} & \textbf{Sensitivity} & \textbf{Specificity} \\
+\midrule
+H1 vs H2 & 70.45\% & 70.45\% & 81.80\% & 59.10\% \\
+H1 vs H3 & 84.21\% & 84.21\% & 78.90\% & 89.50\% \\
+H1 vs H4 & 93.75\% & 93.70\% & 100.00\% & 87.50\% \\
+H2 vs H3 & 60.53\% & 60.53\% & 78.90\% & 42.10\% \\
+H2 vs H4 & 93.75\% & 93.70\% & 87.50\% & 100.00\% \\
+H3 vs H4 & 62.50\% & 62.50\% & 87.50\% & 37.50\% \\
+\bottomrule
+\end{tabular}}
+\caption{ViT-B/16 pairwise binary classification results}
+\label{tab:vit_pairwise}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \safeincludegraphics[width=1\textwidth]{figures/heatmap_pairwise.png}
+    \caption{Pairwise Heatmap}
+    \label{fig:diagrams}
+\end{figure}
+
+\section{Hierarchical Inference}
+Hierarchical inference was tested because Heckmatt grades are ordered rather than independent categories. The low-to-high cascade first checks H1, then H2, then H3/H4. The high-to-low cascade first checks H4, then H3, then H2/H1. This design is shown in Figure~\ref{fig:hierarchical_arch}. The high-to-low ResNet18 cascade performed better overall, reaching 61.54\% accuracy compared with 53.85\% for the low-to-high ResNet18 cascade and 52.75\% for the earlier EfficientNet cascade. However, the cascade logs also showed that the middle decisions were unstable, especially where the model had to choose between adjacent grades.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Cascade} & \textbf{Accuracy} & \textbf{H1 Recall} & \textbf{H2 Recall} & \textbf{H3 Recall} & \textbf{H4 Recall} \\
+\midrule
+EfficientNet low-to-high & 52.75\% & 13.60\% & 73.80\% & 42.10\% & 75.00\% \\
+ResNet18 low-to-high & 53.85\% & 54.50\% & 57.10\% & 26.30\% & 100.00\% \\
+ResNet18 high-to-low & 61.54\% & 50.00\% & 71.40\% & 36.80\% & 100.00\% \\
+\bottomrule
+\end{tabular}}
+\caption{Hierarchical cascade comparison}
+\label{tab:cascade_comparison}
+\end{table}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+ & \textbf{Pred H1} & \textbf{Pred H2} & \textbf{Pred H3} & \textbf{Pred H4} \\
+\midrule
+\textbf{True H1} & 11 & 11 & 0 & 0 \\
+\textbf{True H2} & 9 & 30 & 2 & 1 \\
+\textbf{True H3} & 4 & 5 & 7 & 3 \\
+\textbf{True H4} & 0 & 0 & 0 & 8 \\
+\bottomrule
+\end{tabular}}
+\caption{ResNet18 high-to-low cascade confusion matrix}
+\label{tab:resnet_high_low_cm}
+\end{table}
+
+\section{Label Audit}
+The label audit was added after the classification experiments showed the same kinds of mistakes repeatedly. The aim was not to claim that the model was always correct, but to find images where the current labels and the model behaviour strongly disagreed. The workflow is shown in Figure~\ref{fig:audit_arch}. H1 and H2 were treated as normal, while H3 and H4 were treated as abnormal. The audit covered 606 total images across GMC and LUMINOUS. It found 172 disagreements, giving a combined disagreement rate of 28.38\%. Of these, 79 were high-confidence disagreements with confidence at least 0.8, giving a high-confidence disagreement rate of 13.04\%.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\resizebox{0.9\textwidth}{!}{%
+\begin{tabular}{lc}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Total images & 606 \\
+Disagreements & 172 \\
+Disagreement rate & 28.38\% \\
+High-confidence disagreements & 79 \\
+High-confidence disagreement rate & 13.04\% \\
+\bottomrule
+\end{tabular}}
+\caption{Combined GMC and LUMINOUS image audit summary}
+\label{tab:audit_summary}
+\end{table}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Set/Class} & \textbf{Assumed} & \textbf{Total} & \textbf{Agree} & \textbf{Disagree} & \textbf{High-conf.} \\
+\midrule
+GMC H1 & Normal & 64 & 40 & 24 & 6 \\
+GMC H2 & Normal & 77 & 19 & 58 & 34 \\
+GMC H3 & Abnormal & 54 & 46 & 8 & 2 \\
+GMC H4 & Abnormal & 23 & 23 & 0 & 0 \\
+LUMINOUS H1 & Normal & 76 & 76 & 0 & 0 \\
+LUMINOUS H2 & Normal & 189 & 182 & 7 & 0 \\
+LUMINOUS H3 & Abnormal & 56 & 3 & 53 & 27 \\
+LUMINOUS H4 & Abnormal & 11 & 2 & 9 & 3 \\
+\bottomrule
+\end{tabular}}
+\caption{Class-wise label audit results}
+\label{tab:audit_classwise}
+\end{table}
+
+The audit highlights different failure modes in the two datasets. In GMC, H2 produced the largest issue, with 58 disagreements out of 77 images and 34 high-confidence disagreements. In LUMINOUS, H3 produced the largest issue, with 53 disagreements out of 56 images and 27 high-confidence disagreements. GMC H4 and LUMINOUS H1 showed complete agreement with the assumed labels. The clinical reviewer has also indicated that some images are currently being checked and corrected, so these audit results should be read as evidence for label review rather than as a final clinical judgement. The behaviour of H4 is especially important: even with fewer samples, it was graded correctly in several experiments, which suggests that the main issue may lie more in label consistency and boundary cases than in data quantity alone.
+
+\section{User Interface}
+A clinical user interface was developed to make the pipeline easier to use for physicians and domain experts. The interface supports direct upload of TIFF and BMP ultrasound images, displays the YOLOv8-detected ROI over the input image, and shows the predicted Heckmatt grade. This provides an end-to-end workflow for non-technical users.
+
+Another tool that came out of the project is a data annotation interface for preparing and correcting the dataset. In this tool, ultrasound images can be uploaded and then shown to the doctor one by one for review. The doctor can assign or correct the class label and draw the bounding box around the required muscle region. After annotation, the labels and bounding-box information can be downloaded directly using a button. This is useful for the current correction phase because the reviewer can go through the images in a controlled order and generate updated labels without manually editing separate files.
+
+\begin{figure}[H]
+    \centering
+    \safeincludegraphics[width=1\textwidth]{figures/UI.jpg}
+    \caption{UI screenshot}
+    \label{fig:ui}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \safeincludegraphics[width=1\textwidth]{figures/annotation.png}
+    \caption{Annotator Screenshot}
+    \label{fig:annotation_ui}
+\end{figure}
+
+\section{Results and Discussion}
+\label{discussion}
+The experiments show that automated LMM analysis from ultrasound is feasible, but the classification results should be interpreted carefully. At first, the lower four-class accuracy appeared to be mainly a modelling problem. After the audit, the results look different. A part of the difficulty is likely coming from the labels themselves, especially around the middle grades. The clinical reviewer has already noted that some of the data is mislabelled and is currently being corrected. Because of that, the audit is an important part of the project, not just an extra experiment.
+
+YOLOv8 was the most practical ROI extraction method because it produced bounding boxes directly and did not require prompts. SAM performed well when given prompts, but that requirement made it less suitable for a fully automatic pipeline.
+
+For classification, binary and pairwise experiments were much stronger than full four-class Heckmatt grading. H1 vs H4 and H2 vs H4 performed well, while H2 vs H3 was weak. This is an important finding because it shows that the class boundaries are not equally clear. The distant grades have stronger visual separation, but adjacent grades can overlap in echo intensity and texture. The hierarchy experiments support the same point. When the cascade had to make middle-grade decisions, errors increased, and H3 remained difficult even when H4 was handled well.
+
+The behaviour of H4 also points toward a label-quality issue. H4 had the least data, but it was still graded correctly in several runs, including the direct and hierarchical settings. If the problem were only lack of data, H4 would be expected to fail more often. Instead, the main errors stayed around H1/H2 and H2/H3. This supports the clinical observation that some labels need correction and that borderline cases should be reviewed before drawing strong conclusions from model accuracy.
+Another warning sign was the mismatch between loss and accuracy during training. In several experiments, validation accuracy improved while validation loss increased, and test loss did not always follow the same direction. This can happen when the model gets more confident on some samples while still making confident mistakes on others. In this project, that behaviour fits with the label-audit finding: if some borderline images are mislabelled or inconsistently graded, the loss can become unstable even when the accuracy number looks better.
+
+\begin{figure}[H]
+    \centering
+    \safeincludegraphics[width=1\textwidth]{figures/loss.png}
+    \caption{Loss for ViT}
+    \label{fig:training_loss}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \safeincludegraphics[width=1\textwidth]{figures/accuracy.png}
+    \caption{Accuracy for ViT}
+    \label{fig:training_accuracy}
+\end{figure}
+
+The audit gave a concrete way to identify these cases. Across 606 images, 172 disagreed with the assumed normal/abnormal grouping, and 79 of those disagreements were high-confidence cases. GMC H2 and LUMINOUS H3 were the main sources of disagreement. These results do not mean the model should replace the label, but they do show which samples should be checked first. Once the corrected labels are available, the same training and audit pipeline can be rerun to see whether the confusion around the middle grades reduces.
+
+
+\chapter{Conclusion and Future Work}
+\label{chap:conclusion_future_work}
+\label{conclusion}
+This project presents an automated deep learning framework for Lumbar Multifidus Muscle quality assessment from B-mode ultrasound images. The pipeline combines ROI extraction and Heckmatt grade classification. U-Net and SAM were useful for studying segmentation, but YOLOv8 became the preferred ROI detector because it was fast, accurate, and did not require manual prompts.
+
+For classification, several pretrained backbones were evaluated through direct four-class, pairwise, and hierarchical settings. ResNet18 direct classification reached 63.74\% test accuracy, while the best ResNet18 high-to-low cascade reached 61.54\% and preserved perfect H4 recall. Pairwise ViT results showed that extreme grades are easier to separate, while adjacent grades, especially H2 and H3, remain challenging. The hierarchy logs also support this, because the cascade was strongest at the clear severe boundary but less stable in the middle grades.
+
+The final audit found 172 disagreements among 606 GMC and LUMINOUS images, including 79 high-confidence disagreements. This makes label reliability and dataset shift central issues for the next phase. The next step should be to complete expert correction of the suspected labels, especially around H2 and H3, and then repeat the direct, pairwise, hierarchy, and audit experiments on the corrected dataset. After that, increasing and balancing the dataset, applying domain adaptation between LUMINOUS and GMC images, and testing ultrasound foundation models such as USFM or UltraSam would be more meaningful.
+
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+\end{document}
+
