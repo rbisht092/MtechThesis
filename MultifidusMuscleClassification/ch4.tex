@@ -1,0 +1,52 @@
+\chapter{EVALUATION METRICS}
+\label{metrics}
+For segmentation and ROI localization experiments, the following metrics were used:
+
+\textbf{Intersection over Union (IoU) or Jaccard Index:}
+\[
+\text{IoU} = \frac{|A \cap B|}{|A \cup B|}
+\]
+
+\textbf{Dice Coefficient:}
+\[
+\text{Dice} = \frac{2|A \cap B|}{|A| + |B|}
+\]
+
+\textbf{Pixel Accuracy:}
+\[
+\text{Pixel Accuracy} = \frac{\text{Correctly classified pixels}}{\text{Total pixels}}
+\]
+
+For classification, the following metrics were used:
+
+\textbf{Accuracy:}
+\[
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\]
+
+\textbf{Precision:}
+\[
+\text{Precision} = \frac{TP}{TP + FP}
+\]
+
+\textbf{Recall / Sensitivity:}
+\[
+\text{Recall} = \frac{TP}{TP + FN}
+\]
+
+\textbf{Specificity:}
+\[
+\text{Specificity} = \frac{TN}{TN + FP}
+\]
+
+\textbf{F1 Score:}
+\[
+\text{F1 Score} = \frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
+\]
+
+\textbf{Balanced Accuracy:}
+\[
+\text{Balanced Accuracy} = \frac{1}{C}\sum_{i=1}^{C}\text{Recall}_{i}
+\]
+
+Balanced accuracy was especially important in this project because the Heckmatt classes were not equally represented.

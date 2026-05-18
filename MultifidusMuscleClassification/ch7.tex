@@ -1,9 +1,7 @@
-\chapter{Conclusion and Future Work}
-\label{chap:conclusion_future_work}
+\chapter{CONCLUSION AND FUTURE WORK}
 \label{conclusion}
 This project presents an automated deep learning framework for Lumbar Multifidus Muscle quality assessment from B-mode ultrasound images. The pipeline combines ROI extraction and Heckmatt grade classification. U-Net and SAM were useful for studying segmentation, but YOLOv8 became the preferred ROI detector because it was fast, accurate, and did not require manual prompts.
 
 For classification, several pretrained backbones were evaluated through direct four-class, pairwise, and hierarchical settings. ResNet18 direct classification reached 63.74\% test accuracy, while the best ResNet18 high-to-low cascade reached 61.54\% and preserved perfect H4 recall. Pairwise ViT results showed that extreme grades are easier to separate, while adjacent grades, especially H2 and H3, remain challenging. The hierarchy logs also support this, because the cascade was strongest at the clear severe boundary but less stable in the middle grades.
 
 The final audit found 172 disagreements among 606 GMC and LUMINOUS images, including 79 high-confidence disagreements. This makes label reliability and dataset shift central issues for the next phase. The next step should be to complete expert correction of the suspected labels, especially around H2 and H3, and then repeat the direct, pairwise, hierarchy, and audit experiments on the corrected dataset. After that, increasing and balancing the dataset, applying domain adaptation between LUMINOUS and GMC images, and testing ultrasound foundation models such as USFM or UltraSam would be more meaningful.
-

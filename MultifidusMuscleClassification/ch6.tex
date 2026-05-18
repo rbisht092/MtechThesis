@@ -1,0 +1,34 @@
+\chapter{RESULTS AND DISCUSSION}
+\label{discussion}
+The experiments show that automated LMM analysis from ultrasound is feasible, but the classification results should be interpreted carefully. At first, the lower four-class accuracy appeared to be mainly a modelling problem. After the audit, the results look different. A part of the difficulty is likely coming from the labels themselves, especially around the middle grades. The clinical reviewer has already noted that some of the data is mislabelled and is currently being corrected. Because of that, the audit is an important part of the project, not just an extra experiment.
+
+YOLOv8 was the most practical ROI extraction method because it produced bounding boxes directly and did not require prompts. SAM performed well when given prompts, but that requirement made it less suitable for a fully automatic pipeline.
+
+For classification, binary and pairwise experiments were much stronger than full four-class Heckmatt grading. H1 vs H4 and H2 vs H4 performed well, while H2 vs H3 was weak. This is an important finding because it shows that the class boundaries are not equally clear. The distant grades have stronger visual separation, but adjacent grades can overlap in echo intensity and texture. The hierarchy experiments support the same point. When the cascade had to make middle-grade decisions, errors increased, and H3 remained difficult even when H4 was handled well.
+
+The behaviour of H4 also points toward a label-quality issue. H4 had the least data, but it was still graded correctly in several runs, including the direct and hierarchical settings. If the problem were only lack of data, H4 would be expected to fail more often. Instead, the main errors stayed around H1/H2 and H2/H3. This supports the clinical observation that some labels need correction and that borderline cases should be reviewed before drawing strong conclusions from model accuracy.
+% Figure below shows a image which is labeled as H1 but predicted H3. 
+% \begin{figure}[H]
+%     \centering
+%     \safeincludegraphics[width=0.7\columnwidth]{possible_wrong_label.png}
+%     \caption{A wrong prediction example}
+%     \label{fig:training}
+% \end{figure}
+
+Another warning sign was the mismatch between loss and accuracy during training. In several experiments, validation accuracy improved while validation loss increased, and test loss did not always follow the same direction. This can happen when the model gets more confident on some samples while still making confident mistakes on others. In this project, that behaviour fits with the label-audit finding: if some borderline images are mislabelled or inconsistently graded, the loss can become unstable even when the accuracy number looks better.
+
+\begin{figure}[H]
+    \centering
+    \safeincludegraphics[width=0.95\textwidth]{loss.png}
+    \caption{Loss for ViT}
+    \label{fig:training}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \safeincludegraphics[width=0.95\textwidth]{accuracy.png}
+    \caption{Accuracy for ViT}
+    \label{fig:training_accuracy}
+\end{figure}
+
+The audit gave a concrete way to identify these cases. Across 606 images, 172 disagreed with the assumed normal/abnormal grouping, and 79 of those disagreements were high-confidence cases. GMC H2 and LUMINOUS H3 were the main sources of disagreement. These results do not mean the model should replace the label, but they do show which samples should be checked first. Once the corrected labels are available, the same training and audit pipeline can be rerun to see whether the confusion around the middle grades reduces.

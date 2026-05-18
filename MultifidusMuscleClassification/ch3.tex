@@ -1,5 +1,4 @@
-\chapter{Methodology}
-\label{chap:methodology}
+\chapter{METHODOLOGY}
 \label{methodology}
 The proposed system follows a two-stage pipeline. In the first stage, the LMM region is localized from the ultrasound image. In the second stage, the localized image is classified into one of the four Heckmatt grades.
 
@@ -22,16 +21,14 @@ The project also produced an annotation workflow for the relabeling stage. Image
 
 \begin{figure}[H]
 \centering
-\safeincludegraphics[width=0.4\textwidth]{figures/Screenshot 2026-02-25 232024.png}
+\safeincludegraphics[width=0.65\textwidth]{Screenshot 2026-02-25 232024.png}
 \caption{YOLO fine-tuning pipeline}
 \label{fig:yolo_finetune}
 \end{figure}
 
-\clearpage
-
 \begin{figure}[H]
 \centering
-\safeincludegraphics[width=0.7\textwidth]{figures/datasetDistribution.png}
+\safeincludegraphics[width=0.7\textwidth]{datasetDistribution.png}
 \caption{Dataset Distribution by Grades}
 \label{fig:dataset_distribution}
 \end{figure}
@@ -40,21 +37,21 @@ The project also produced an annotation workflow for the relabeling stage. Image
 
 \begin{figure}[H]
 \centering
-\safeincludegraphics[width=0.9\textwidth]{figures/Architecture-of-the-YOLO-network.png}
+\safeincludegraphics[width=0.9\textwidth]{Architecture-of-the-YOLO-network.png}
 \caption{YOLO architecture. Source: ResearchGate}
 \label{fig:yolo_arch}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\safeincludegraphics[width=0.9\textwidth]{figures/yolo_arch.png}
+\safeincludegraphics[width=0.9\textwidth]{yolo_arch.png}
 \caption{Classification methodology}
 \label{fig:classification_methodology}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\safeincludegraphics[width=0.7\textwidth]{figures/EfficientNet-Architecture.png}
+\safeincludegraphics[width=0.7\textwidth]{EfficientNet-Architecture.png}
 \caption{EfficientNet architecture}
 \label{fig:efficientnet_arch}
 \end{figure}
@@ -62,68 +59,14 @@ The project also produced an annotation workflow for the relabeling stage. Image
 
 \begin{figure}[H]
 \centering
-\safeincludegraphics[width=0.9\textwidth]{figures/hierarchical-inf-pipe.png}
+\safeincludegraphics[width=0.9\textwidth]{hierarchical-inf-pipe.png}
 \caption{Hierarchical inference architecture}
 \label{fig:hierarchical_arch}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\safeincludegraphics[width=0.9\textwidth]{figures/label-audit.png}
+\safeincludegraphics[width=0.9\textwidth]{label-audit.png}
 \caption{Binary label audit workflow}
 \label{fig:audit_arch}
 \end{figure}
-
-\section{Evaluation Metrics}
-\label{metrics}
-For segmentation and ROI localization experiments, the following metrics were used:
-
-\textbf{Intersection over Union (IoU) or Jaccard Index:}
-\[
-\text{IoU} = \frac{|A \cap B|}{|A \cup B|}
-\]
-
-\textbf{Dice Coefficient:}
-\[
-\text{Dice} = \frac{2|A \cap B|}{|A| + |B|}
-\]
-
-\textbf{Pixel Accuracy:}
-\[
-\text{Pixel Accuracy} = \frac{\text{Correctly classified pixels}}{\text{Total pixels}}
-\]
-
-For classification, the following metrics were used:
-
-\textbf{Accuracy:}
-\[
-\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
-\]
-
-\textbf{Precision:}
-\[
-\text{Precision} = \frac{TP}{TP + FP}
-\]
-
-\textbf{Recall / Sensitivity:}
-\[
-\text{Recall} = \frac{TP}{TP + FN}
-\]
-
-\textbf{Specificity:}
-\[
-\text{Specificity} = \frac{TN}{TN + FP}
-\]
-
-\textbf{F1 Score:}
-\[
-\text{F1 Score} = \frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}
-\]
-
-\textbf{Balanced Accuracy:}
-\[
-\text{Balanced Accuracy} = \frac{1}{C}\sum_{i=1}^{C}\text{Recall}_{i}
-\]
-
-Balanced accuracy was especially important in this project because the Heckmatt classes were not equally represented.
-

@@ -1,0 +1,91 @@
+\documentclass[modernstyle,12pt]{thesis}
+
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage{eufrak}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{longtable}
+
+\newcommand{\safeincludegraphics}[2][]{%
+  \IfFileExists{#2}{%
+    \includegraphics[#1]{#2}%
+  }{%
+    \fbox{\parbox{0.85\linewidth}{\centering Missing figure: \texttt{#2}}}%
+  }%
+}
+
+\title{Multifidus Muscle Classification from Ultrasound Imaging Using Deep Learning }
+
+\author{Rahul Bisht}{}
+
+% \otherdegrees{B.Tech., [Your University Name], [Year]}
+
+\degree{\Large {$\mathfrak {Master\; of\; Technology}$}}
+	{M.Tech., Computer Science and Engineering}
+
+\dept{Department of}
+	{Computer Engineering}
+
+\advisor{Dr.}{Jayaraj PB}
+
+% \reader{Dr. V.K. Govindan}
+
+\abstract{ \OnePageChapter
+
+Low back pain (LBP) affects a large part of the population, with nearly 60--80\% of people experiencing it during their lifetime. The Lumbar Multifidus Muscle (LMM) is important for spinal stability, and changes such as atrophy and fatty infiltration are closely linked with chronic LBP. Although MRI and CT scans can be used to study the muscle, they are either expensive, less accessible, or involve radiation exposure. Ultrasound imaging is safer and more affordable, but manual interpretation depends strongly on the observer.
+
+This thesis develops a deep learning based pipeline for automated LMM assessment from B-mode ultrasound images. The system first localizes the muscle region using an ROI extraction model and then classifies the image into Heckmatt grades. Experiments were carried out with U-Net, SAM, YOLOv8, transformer-based classifiers, MedGemma, ResNet, and EfficientNet models. The final phase shifted from only improving classification accuracy to auditing label reliability and understanding model disagreement.
+
+A ViT-based audit on 606 GMC and LUMINOUS images treated H1 and H2 as normal and H3 and H4 as abnormal. The audit found 172 disagreements, including 79 high-confidence disagreements, showing that model performance is limited not only by architecture but also by domain shift and ambiguity around middle Heckmatt grades.}
+
+
+\acknowledgements{ \OnePageChapter
+
+I would like to express my sincere gratitude to my supervisor, \textbf{Dr. Jayaraj PB}, for his invaluable guidance, continuous support, and encouragement throughout this M.Tech project. His expertise and constructive feedback have been instrumental in shaping this work.
+
+I am sincerely grateful to \textbf{Dr. Shehadad}, the clinical expert, for providing the necessary data and valuable medical insights, which greatly contributed to the successful completion of this project.
+
+I extend my heartfelt thanks to \textbf{Mrs. Ninitha}, for her valuable guidance, support, and encouragement during the course of this work.
+
+I also extend my thanks to the faculty and staff of the Department of Computer Engineering for their support.
+
+Finally, I am deeply grateful to my family and friends for their unwavering support and encouragement throughout my academic journey.
+
+\begin{raggedright}
+\vspace*{10mm}
+\hspace*{117mm}
+\textbf{Rahul Bisht}
+\end{raggedright}
+}
+
+
+\ToCisShort
+\LoFisShort
+\LoTisShort
+
+\begin{document}
+
+\input macros.tex
+\input ch1.tex
+\input ch2.tex
+\input ch3.tex
+\input ch4.tex
+\input ch5.tex
+\input ch6.tex
+\input ch7.tex
+
+\bibliographystyle{plain}
+\nocite{*}
+\bibliography{refs}
+
+% \appendix
+% \input appA.tex
+% \input appB.tex
+
+\end{document}

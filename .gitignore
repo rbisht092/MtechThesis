@@ -27,3 +27,11 @@ MTECHTHESIS/_backup_complex_template_*/
 *.bak
 *.backup
 *.sav
+
+# Local thesis scratch/output files
+MultifidusMuscleClassification/Mythesis.pdf
+MultifidusMuscleClassification/listofsymbols.pdf
+MultifidusMuscleClassification/appA.tex
+MultifidusMuscleClassification/appB.tex
+MultifidusMuscleClassification/see.tex
+MultifidusMuscleClassification/temp.tex

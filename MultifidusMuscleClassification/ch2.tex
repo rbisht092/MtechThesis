@@ -1,5 +1,4 @@
-\chapter{Literature Review}
-\label{chap:literature_review}
+\chapter{LITERATURE REVIEW}
 \label{relatedwork}
 The stabilizing role of the lumbar multifidus muscle in chronic LBP has been studied extensively by Freeman et al. \cite{Freeman2010}. Their review explains how LMM dysfunction, fatty infiltration, and atrophy are related to pain and impaired spinal control. It also highlights the value of imaging techniques such as MRI and ultrasound for measuring muscle impairment and recovery.
 
@@ -18,4 +17,3 @@ Noise handling is a separate concern in ultrasound because speckle is not just o
 The classification models used in the project also follow common deep learning practice. ResNet introduced residual connections to make deeper convolutional networks easier to optimize \cite{he2016resnet}, which is why ResNet18 was kept as a simple but useful baseline. The class distribution in this project was not balanced, so the work also connects with imbalanced learning studies. He and Garcia \cite{HeGarcia2009} discuss the general difficulty of learning from imbalanced data, while focal loss \cite{LinFocal2017} and class-balanced loss \cite{Cui2019} show different ways of reducing bias toward majority classes. Since medical image datasets are often small, augmentation is also important; Shorten and Khoshgoftaar \cite{Shorten2019} review image augmentation methods, and AutoAugment \cite{Cubuk2019} shows how augmentation policies can be learned from data.
 
 Recent ultrasound foundation models have also become relevant. USFM \cite{JIAO2024103202} was trained on more than two million ultrasound images and uses a spatial-frequency masked image modelling strategy. UltraSam \cite{meyer2024ultrasam}, an ultrasound-adapted version of SAM, was trained on a large ultrasound segmentation collection and showed improved performance over general-purpose SAM on ultrasound tasks. These works suggest that ultrasound-specific pretraining may be useful for future versions of this project.
-
